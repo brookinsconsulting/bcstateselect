@@ -36,33 +36,30 @@
 
 */
 
-include_once( 'kernel/classes/ezdatatype.php' );
-include_once( 'lib/ezutils/classes/ezintegervalidator.php' );
-include_once( 'kernel/common/i18n.php' );
-
-define( 'EZ_DATATYPESTATESELECT_STRING', 'bcstateselect' );
-define( 'EZ_DATATYPESTATESELECT_MAX_LEN_FIELD', 'data_int1' );
-define( 'EZ_DATATYPESTATESELECT_MAX_LEN_VARIABLE', '_bcstateselect_max_string_length_' );
-define( "EZ_DATATYPESTATESELECT_DEFAULT_STRING_FIELD", "data_text1" );
-define( "EZ_DATATYPESTATESELECT_DEFAULT_STRING_VARIABLE", "_bcstateselect_default_value_" );
-
 class BcStateSelectType extends eZDataType
 {
+    const DATA_TYPE_STRING = 'bcstateselect';
+    const DEFAULT_STRING_FIELD = "data_text1";
+    const DEFAULT_STRING_VARIABLE = "_bcstateselect_default_value_";
+    const MAX_LEN_FIELD = "data_int1";
+    const MAX_LEN_VARIABLE = "_bcstateselect_max_string_length_";
+
     /*!
      Initializes with a string id and a description.
     */
     function BcStateSelectType()
     {
-        $this->eZDataType( EZ_DATATYPESTATESELECT_STRING, ezi18n( 'kernel/classes/datatypes', 'State Selection', 'Datatype name' ),
-                           array( 'serialize_supported' => true,
-                                  'object_serialize_map' => array( 'data_text' => 'text' ) ) );
+        parent::__construct( self::DATA_TYPE_STRING, ezpI18n::tr( 'kernel/classes/datatypes', 'State Selection', 'Datatype name' ),
+                             array( 'serialize_supported' => true,
+                                    'object_serialize_map' => array( 'data_text' => 'text' ) ) );
+
         $this->MaxLenValidator = new eZIntegerValidator();
     }
 
     /*!
      Sets the default value.
     */
-    function initializeObjectAttribute( &$contentObjectAttribute, $currentVersion, &$originalContentObjectAttribute )
+    function initializeObjectAttribute( $contentObjectAttribute, $currentVersion, $originalContentObjectAttribute )
     {
         if ( $currentVersion != false )
         {
@@ -86,14 +83,14 @@ class BcStateSelectType extends eZDataType
     /*
      Private method, only for using inside this class.
     */
-    function validateStringHTTPInput( $data, &$contentObjectAttribute, &$classAttribute )
+    function validateStringHTTPInput( $data, $contentObjectAttribute, $classAttribute )
     {
-        $maxLen = $classAttribute->attribute( EZ_DATATYPESTATESELECT_MAX_LEN_FIELD );
+        $maxLen = $classAttribute->attribute( self::MAX_LEN_FIELD );
         $textCodec =& eZTextCodec::instance( false );
         if ( $textCodec->strlen( $data ) > $maxLen and
              $maxLen > 0 )
         {
-            $contentObjectAttribute->setValidationError( ezi18n( 'kernel/classes/datatypes',
+            $contentObjectAttribute->setValidationError( ezpI18n::tr( 'kernel/classes/datatypes',
                                                                  'The input text is too long. The maximum number of characters allowed is %1.' ),
                                                          $maxLen );
             return EZ_INPUT_VALIDATOR_STATE_INVALID;
@@ -105,7 +102,7 @@ class BcStateSelectType extends eZDataType
     /*!
      \reimp
     */
-    function validateObjectAttributeHTTPInput( &$http, $base, &$contentObjectAttribute )
+    function validateObjectAttributeHTTPInput( $http, $base, $contentObjectAttribute )
     {
         if ( $http->hasPostVariable( $base . '_bcstateselect_data_text_' . $contentObjectAttribute->attribute( 'id' ) ) )
         {
@@ -117,7 +114,7 @@ class BcStateSelectType extends eZDataType
                 if ( !$classAttribute->attribute( 'is_information_collector' ) and
                      $contentObjectAttribute->validateIsRequired() )
                 {
-                    $contentObjectAttribute->setValidationError( ezi18n( 'kernel/classes/datatypes',
+                    $contentObjectAttribute->setValidationError( ezpI18n::tr( 'kernel/classes/datatypes',
                                                                          'Input required.' ) );
                     return EZ_INPUT_VALIDATOR_STATE_INVALID;
                 }
@@ -133,7 +130,7 @@ class BcStateSelectType extends eZDataType
     /*!
      \reimp
     */
-    function validateCollectionAttributeHTTPInput( &$http, $base, &$contentObjectAttribute )
+    function validateCollectionAttributeHTTPInput( $http, $base, $contentObjectAttribute )
     {
         if ( $http->hasPostVariable( $base . '_bcstateselect_data_text_' . $contentObjectAttribute->attribute( 'id' ) ) )
         {
@@ -144,7 +141,7 @@ class BcStateSelectType extends eZDataType
             {
                 if ( $contentObjectAttribute->validateIsRequired() )
                 {
-                    $contentObjectAttribute->setValidationError( ezi18n( 'kernel/classes/datatypes',
+                    $contentObjectAttribute->setValidationError( ezpI18n::tr( 'kernel/classes/datatypes',
                                                                          'Input required.' ) );
                     return EZ_INPUT_VALIDATOR_STATE_INVALID;
                 }
@@ -163,7 +160,7 @@ class BcStateSelectType extends eZDataType
     /*!
      Fetches the http post var string input and stores it in the data instance.
     */
-    function fetchObjectAttributeHTTPInput( &$http, $base, &$contentObjectAttribute )
+    function fetchObjectAttributeHTTPInput( $http, $base, $contentObjectAttribute )
     {
         if ( $http->hasPostVariable( $base . '_bcstateselect_data_text_' . $contentObjectAttribute->attribute( 'id' ) ) )
         {
@@ -177,7 +174,7 @@ class BcStateSelectType extends eZDataType
     /*!
      Fetches the http post variables for collected information
     */
-    function fetchCollectionAttributeHTTPInput( &$collection, &$collectionAttribute, &$http, $base, &$contentObjectAttribute )
+    function fetchCollectionAttributeHTTPInput( $collection, $collectionAttribute, $http, $base, $contentObjectAttribute )
     {
         if ( $http->hasPostVariable( $base . "_bcstateselect_data_text_" . $contentObjectAttribute->attribute( "id" ) ) )
         {
@@ -192,7 +189,7 @@ class BcStateSelectType extends eZDataType
      Does nothing since it uses the data_text field in the content object attribute.
      See fetchObjectAttributeHTTPInput for the actual storing.
     */
-    function storeObjectAttribute( &$attribute )
+    function storeObjectAttribute( $attribute )
     {
     }
 
@@ -209,8 +206,8 @@ class BcStateSelectType extends eZDataType
      \reimp
      Inserts the string \a $string in the \c 'data_text' database field.
     */
-    function insertSimpleString( &$object, $objectVersion, $objectLanguage,
-                                 &$objectAttribute, $string,
+    function insertSimpleString( $object, $objectVersion, $objectLanguage,
+                                 $objectAttribute, $string,
                                  &$result )
     {
         $result = array( 'errors' => array(),
@@ -220,20 +217,20 @@ class BcStateSelectType extends eZDataType
         return true;
     }
 
-    function storeClassAttribute( &$attribute, $version )
+    function storeClassAttribute( $attribute, $version )
     {
     }
 
-    function storeDefinedClassAttribute( &$attribute )
+    function storeDefinedClassAttribute( $attribute )
     {
     }
 
     /*!
      \reimp
     */
-    function validateClassAttributeHTTPInput( &$http, $base, &$classAttribute )
+    function validateClassAttributeHTTPInput( $http, $base, $classAttribute )
     {
-        $maxLenName = $base . EZ_DATATYPESTATESELECT_MAX_LEN_VARIABLE . $classAttribute->attribute( 'id' );
+        $maxLenName = $base . self::MAX_LEN_VARIABLE . $classAttribute->attribute( 'id' );
         if ( $http->hasPostVariable( $maxLenName ) )
         {
             $maxLenValue = $http->postVariable( $maxLenName );
@@ -256,9 +253,9 @@ class BcStateSelectType extends eZDataType
     /*!
      \reimp
     */
-    function fixupClassAttributeHTTPInput( &$http, $base, &$classAttribute )
+    function fixupClassAttributeHTTPInput( $http, $base, $classAttribute )
     {
-        $maxLenName = $base . EZ_DATATYPESTATESELECT_MAX_LEN_VARIABLE . $classAttribute->attribute( 'id' );
+        $maxLenName = $base . self::MAX_LEN_VARIABLE . $classAttribute->attribute( 'id' );
         if ( $http->hasPostVariable( $maxLenName ) )
         {
             $maxLenValue = $http->postVariable( $maxLenName );
@@ -271,20 +268,20 @@ class BcStateSelectType extends eZDataType
     /*!
      \reimp
     */
-    function fetchClassAttributeHTTPInput( &$http, $base, &$classAttribute )
+    function fetchClassAttributeHTTPInput( $http, $base, $classAttribute )
     {
-        $maxLenName = $base . EZ_DATATYPESTATESELECT_MAX_LEN_VARIABLE . $classAttribute->attribute( 'id' );
-        $defaultValueName = $base . EZ_DATATYPESTATESELECT_DEFAULT_STRING_VARIABLE . $classAttribute->attribute( 'id' );
+        $maxLenName = $base . self::MAX_LEN_VARIABLE . $classAttribute->attribute( 'id' );
+        $defaultValueName = $base . self::DEFAULT_STRING_VARIABLE . $classAttribute->attribute( 'id' );
         if ( $http->hasPostVariable( $maxLenName ) )
         {
             $maxLenValue = $http->postVariable( $maxLenName );
-            $classAttribute->setAttribute( EZ_DATATYPESTATESELECT_MAX_LEN_FIELD, $maxLenValue );
+            $classAttribute->setAttribute( self::MAX_LEN_FIELD, $maxLenValue );
         }
         if ( $http->hasPostVariable( $defaultValueName ) )
         {
             $defaultValueValue = $http->postVariable( $defaultValueName );
 
-            $classAttribute->setAttribute( EZ_DATATYPESTATESELECT_DEFAULT_STRING_FIELD, $defaultValueValue );
+            $classAttribute->setAttribute( self::DEFAULT_STRING_FIELD, $defaultValueValue );
         }
         return true;
     }
@@ -292,7 +289,7 @@ class BcStateSelectType extends eZDataType
     /*!
      Returns the content.
     */
-    function &objectAttributeContent( &$contentObjectAttribute )
+    function objectAttributeContent( $contentObjectAttribute )
     {
         return $contentObjectAttribute->attribute( 'data_text' );
     }
@@ -300,7 +297,7 @@ class BcStateSelectType extends eZDataType
     /*!
      Returns the meta data used for storing search indeces.
     */
-    function metaData( &$contentObjectAttribute )
+    function metaData( $contentObjectAttribute )
     {
         return $contentObjectAttribute->attribute( 'data_text' );
     }
@@ -308,12 +305,12 @@ class BcStateSelectType extends eZDataType
     /*!
      Returns the content of the string for use as a title
     */
-    function title( &$contentObjectAttribute )
+    function title( $contentObjectAttribute, $name = NULL )
     {
         return $contentObjectAttribute->attribute( 'data_text' );
     }
 
-    function hasObjectAttributeContent( &$contentObjectAttribute )
+    function hasObjectAttributeContent( $contentObjectAttribute )
     {
         return trim( $contentObjectAttribute->attribute( 'data_text' ) ) != '';
     }
@@ -337,9 +334,8 @@ class BcStateSelectType extends eZDataType
     /*!
      \reimp
     */
-    function sortKey( &$contentObjectAttribute )
+    function sortKey( $contentObjectAttribute )
     {
-        include_once( 'lib/ezi18n/classes/ezchartransform.php' );
         $trans =& eZCharTransform::instance();
         return $trans->transformByGroup( $contentObjectAttribute->attribute( 'data_text' ), 'lowercase' );
     }
@@ -355,10 +351,10 @@ class BcStateSelectType extends eZDataType
     /*!
      \reimp
     */
-    function serializeContentClassAttribute( &$classAttribute, &$attributeNode, &$attributeParametersNode )
+    function serializeContentClassAttribute( $classAttribute, $attributeNode, $attributeParametersNode )
     {
-        $maxLength = $classAttribute->attribute( EZ_DATATYPESTATESELECT_MAX_LEN_FIELD );
-        $defaultString = $classAttribute->attribute( EZ_DATATYPESTATESELECT_DEFAULT_STRING_FIELD );
+        $maxLength = $classAttribute->attribute( self::MAX_LEN_FIELD );
+        $defaultString = $classAttribute->attribute( self::DEFAULT_STRING_FIELD );
         $attributeParametersNode->appendChild( eZDOMDocument::createElementTextNode( 'max-length', $maxLength ) );
         if ( $defaultString )
             $attributeParametersNode->appendChild( eZDOMDocument::createElementTextNode( 'default-string', $defaultString ) );
@@ -369,12 +365,12 @@ class BcStateSelectType extends eZDataType
     /*!
      \reimp
     */
-    function unserializeContentClassAttribute( &$classAttribute, &$attributeNode, &$attributeParametersNode )
+    function unserializeContentClassAttribute( $classAttribute, $attributeNode, $attributeParametersNode )
     {
         $maxLength = $attributeParametersNode->elementTextContentByName( 'max-length' );
         $defaultString = $attributeParametersNode->elementTextContentByName( 'default-string' );
-        $classAttribute->setAttribute( EZ_DATATYPESTATESELECT_MAX_LEN_FIELD, $maxLength );
-        $classAttribute->setAttribute( EZ_DATATYPESTATESELECT_DEFAULT_STRING_FIELD, $defaultString );
+        $classAttribute->setAttribute( self::MAX_LEN_FIELD, $maxLength );
+        $classAttribute->setAttribute( self::DEFAULT_STRING_FIELD, $defaultString );
     }
 
     /*!
@@ -382,7 +378,6 @@ class BcStateSelectType extends eZDataType
     */
     function diff( $old, $new, $options = false )
     {
-        include_once( 'lib/ezdiff/classes/ezdiff.php' );
         $diff = new eZDiff();
         $diff->setDiffEngineType( $diff->engineType( 'text' ) );
         $diff->initDiffEngine();
@@ -395,6 +390,6 @@ class BcStateSelectType extends eZDataType
     var $MaxLenValidator;
 }
 
-eZDataType::register( EZ_DATATYPESTATESELECT_STRING, 'bcstateselecttype' );
+eZDataType::register( bcstateselectType::DATA_TYPE_STRING, 'bcstateselectType' );
 
 ?>
