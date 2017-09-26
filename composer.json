@@ -1,0 +1,24 @@
+{
+    "name": "brookinsconsulting/bcstateselect",
+    "description": "eZ Publish Legacy extension which provides a simple address state selection list datatype. Also provides support for information colllection forms. Great for smart developers!",
+    "type": "ezpublish-legacy-extension",
+    "keywords": [ "eZ Publish", "eZ Publish Legacy", "eZ Publish Platform", "state", "select","dropdown", "extension", "datatype" ],
+    "homepage": "https://github.com/brookinsconsulting/bcstateselect",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name" : "Brookins Consulting",
+            "homepage": "http://brookinsconsulting.com",
+            "email": "info@brookinsconsulting.com",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.0.0",
+        "ezsystems/ezpublish-legacy-installer": "*"
+    },
+    "extra": {
+        "ezpublish-legacy-extension-name": "bcstateselect"
+    }
+}
